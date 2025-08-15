@@ -4,7 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>点击成仙 | Tapping Immortal</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #e8e8e8;
+            text-align: center;
+            padding: 20px;
+            background-image: url('https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(40, 40, 40, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid #5d4037;
+        }
+
+        h1 {
+            color: #f8bbd0;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #b39ddb;
+            margin-top: 0;
+        }
+
+        .studio-logo {
+            font-size: 24px;
+            color: #80cbc4;
+            margin: 15px 0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .game-area {
+            margin-top: 20px;
+        }
+
+        .cultivation-info {
+            background-color: rgba(69, 39, 19, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            border: 1px solid #5d4037;
+        }
+
+        .qi-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .qi-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #333;
+            margin: 5px;
+            border: 1px solid #666;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qi-circle::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle, rgba(76,175,80,0.8) 0%, rgba(76,175,80,0) 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .qi-circle.active::after {
+            opacity: 1;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        #cultivate-btn {
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+            box-shadow: 0 4px 0 #1B5E20;
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+        }
+
+        #cultivate-btn:hover {
+            background: linear-gradient(to bottom, #3e8e41, #1B5E20);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1B5E20;
+        }
+
+        #cultivate-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #breakthrough-btn {
+            background: linear-gradient(to bottom, #f44336, #c62828);
+            color: white;
+            box-shadow: 0 4px 0 #8E0000;
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+        }
+
+        #breakthrough-btn:hover {
+            background: linear-gradient(to bottom, #e53935, #8E0000);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #8E0000;
+        }
+
+        #breakthrough-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #click-value {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #cultivation, #next-level {
+            font-weight: bold;
+            color: #b39ddb;
+        }
+
+        #realm {
+            color: #80cbc4;
+            font-weight: bold;
+        }
+
+        .breakthrough-chance {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #f8bbd0;
+        }
+
+        .penalty-info {
+            color: #ffab91;
+            font-size: 14px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,8 +183,11 @@
         <div class="game-area">
             <div class="cultivation-info">
                 <h2>境界: <span id="realm">凡人</span></h2>
+                <div id="qi-display" class="qi-container"></div>
                 <p>修为: <span id="cultivation">0</span>/<span id="next-level">100</span></p>
                 <p>每次点击: +<span id="click-value">10</span>修为</p>
+                <div id="breakthrough-info" class="breakthrough-chance"></div>
+                <div id="penalty-info" class="penalty-info"></div>
             </div>
             
             <button id="cultivate-btn">修炼</button>
@@ -24,6 +195,247 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // 游戏数据
+        const gameData = {
+            cultivation: 0,
+            realmIndex: 0,
+            subRealmIndex: 0,
+            clickValue: 10,
+            penalty: 0, // 突破失败惩罚累积
+            baseBreakthroughChances: [100, 90, 80, 70, 60, 50, 40], // 各境界基础突破概率
+            realms: [
+                { 
+                    name: "凡人", 
+                    nextLevel: 100, 
+                    clickMultiplier: 1,
+                    hasSubRealms: false
+                },
+                { 
+                    name: "炼气期", 
+                    nextLevel: 100, 
+                    clickMultiplier: 1.5,
+                    hasSubRealms: true,
+                    subRealmCount: 10,
+                    subRealmNames: ["一重天", "二重天", "三重天", "四重天", "五重天", 
+                                  "六重天", "七重天", "八重天", "九重天", "十重天"],
+                    subRealmPenalty: 2 // 每重天降低2%成功率
+                },
+                { 
+                    name: "筑基期", 
+                    nextLevel: 500, 
+                    clickMultiplier: 2,
+                    hasSubRealms: true,
+                    subRealmCount: 4,
+                    subRealmNames: ["初期", "中期", "后期", "圆满"],
+                    subRealmPenalty: 5 // 每个小境界降低5%成功率
+                },
+                { 
+                    name: "金丹期", 
+                    nextLevel: 1000, 
+                    clickMultiplier: 3,
+                    hasSubRealms: true,
+                    subRealmCount: 4,
+                    subRealmNames: ["初期", "中期", "后期", "圆满"],
+                    subRealmPenalty: 8
+                },
+                { 
+                    name: "元婴期", 
+                    nextLevel: 5000, 
+                    clickMultiplier: 5,
+                    hasSubRealms: true,
+                    subRealmCount: 4,
+                    subRealmNames: ["初期", "中期", "后期", "圆满"],
+                    subRealmPenalty: 12
+                },
+                { 
+                    name: "化神期", 
+                    nextLevel: 10000, 
+                    clickMultiplier: 8,
+                    hasSubRealms: true,
+                    subRealmCount: 4,
+                    subRealmNames: ["初期", "中期", "后期", "圆满"],
+                    subRealmPenalty: 15
+                },
+                { 
+                    name: "大乘期", 
+                    nextLevel: Infinity, 
+                    clickMultiplier: 10,
+                    hasSubRealms: false
+                }
+            ]
+        };
+
+        // DOM元素
+        const cultivateBtn = document.getElementById('cultivate-btn');
+        const breakthroughBtn = document.getElementById('breakthrough-btn');
+        const cultivationDisplay = document.getElementById('cultivation');
+        const nextLevelDisplay = document.getElementById('next-level');
+        const realmDisplay = document.getElementById('realm');
+        const clickValueDisplay = document.getElementById('click-value');
+        const qiDisplay = document.getElementById('qi-display');
+        const breakthroughInfo = document.getElementById('breakthrough-info');
+        const penaltyInfo = document.getElementById('penalty-info');
+
+        // 初始化游戏
+        function initGame() {
+            updateDisplay();
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            const currentRealm = gameData.realms[gameData.realmIndex];
+            
+            // 更新境界显示
+            if (currentRealm.hasSubRealms) {
+                realmDisplay.textContent = `${currentRealm.name} ${currentRealm.subRealmNames[gameData.subRealmIndex]}`;
+            } else {
+                realmDisplay.textContent = currentRealm.name;
+            }
+            
+            // 更新修为显示
+            cultivationDisplay.textContent = gameData.cultivation;
+            nextLevelDisplay.textContent = currentRealm.nextLevel;
+            clickValueDisplay.textContent = Math.floor(gameData.clickValue * currentRealm.clickMultiplier);
+            
+            // 更新气团显示
+            updateQiDisplay();
+            
+            // 更新突破信息
+            updateBreakthroughInfo();
+            
+            // 检查是否可以突破
+            if (gameData.cultivation >= currentRealm.nextLevel && 
+                (gameData.realmIndex < gameData.realms.length - 1 || 
+                 (currentRealm.hasSubRealms && gameData.subRealmIndex < currentRealm.subRealmCount - 1))) {
+                breakthroughBtn.classList.remove('hidden');
+            } else {
+                breakthroughBtn.classList.add('hidden');
+            }
+        }
+
+        // 更新气团显示
+        function updateQiDisplay() {
+            qiDisplay.innerHTML = '';
+            const currentRealm = gameData.realms[gameData.realmIndex];
+            
+            if (currentRealm.hasSubRealms) {
+                for (let i = 0; i < currentRealm.subRealmCount; i++) {
+                    const qiCircle = document.createElement('div');
+                    qiCircle.className = 'qi-circle' + (i <= gameData.subRealmIndex ? ' active' : '');
+                    qiDisplay.appendChild(qiCircle);
+                }
+            }
+        }
+
+        // 更新突破信息
+        function updateBreakthroughInfo() {
+            if (breakthroughBtn.classList.contains('hidden')) {
+                breakthroughInfo.textContent = '';
+                penaltyInfo.textContent = '';
+                return;
+            }
+            
+            const chance = calculateBreakthroughChance();
+            breakthroughInfo.textContent = `突破成功率: ${chance}%`;
+            
+            if (gameData.penalty > 0) {
+                penaltyInfo.textContent = `(因上次失败，成功率+${gameData.penalty}%)`;
+            } else {
+                penaltyInfo.textContent = '';
+            }
+        }
+
+        // 计算突破概率
+        function calculateBreakthroughChance() {
+            if (gameData.realmIndex >= gameData.baseBreakthroughChances.length) {
+                return 0;
+            }
+            
+            let chance = gameData.baseBreakthroughChances[gameData.realmIndex];
+            
+            // 减去境界内小境界的惩罚
+            const currentRealm = gameData.realms[gameData.realmIndex];
+            if (currentRealm.hasSubRealms) {
+                chance -= gameData.subRealmIndex * currentRealm.subRealmPenalty;
+            }
+            
+            // 加上失败累积的奖励
+            chance += gameData.penalty;
+            
+            // 确保概率在5%-95%之间
+            return Math.max(5, Math.min(95, Math.floor(chance)));
+        }
+
+        // 修炼按钮点击事件
+        cultivateBtn.addEventListener('click', function() {
+            const currentClickValue = gameData.clickValue * gameData.realms[gameData.realmIndex].clickMultiplier;
+            gameData.cultivation += Math.floor(currentClickValue);
+            updateDisplay();
+        });
+
+        // 突破按钮点击事件
+        breakthroughBtn.addEventListener('click', function() {
+            const chance = calculateBreakthroughChance();
+            const random = Math.random() * 100;
+            
+            if (random <= chance) {
+                handleSuccessfulBreakthrough();
+            } else {
+                handleFailedBreakthrough();
+            }
+        });
+
+        // 处理成功突破
+        function handleSuccessfulBreakthrough() {
+            const currentRealm = gameData.realms[gameData.realmIndex];
+            
+            // 重置失败惩罚
+            gameData.penalty = 0;
+            
+            if (currentRealm.hasSubRealms && gameData.subRealmIndex < currentRealm.subRealmCount - 1) {
+                // 小境界突破
+                gameData.subRealmIndex++;
+                gameData.cultivation = 0;
+                alert(`恭喜突破到${currentRealm.name} ${currentRealm.subRealmNames[gameData.subRealmIndex]}！`);
+            } else {
+                // 大境界突破
+                gameData.realmIndex++;
+                gameData.subRealmIndex = 0;
+                gameData.cultivation = 0;
+                const newRealm = gameData.realms[gameData.realmIndex];
+                alert(`恭喜突破到${newRealm.name}${newRealm.hasSubRealms ? ' ' + newRealm.subRealmNames[0] : ''}！\n每次点击现在可获得 ${Math.floor(gameData.clickValue * newRealm.clickMultiplier)} 点修为`);
+            }
+            
+            updateDisplay();
+        }
+
+        // 处理突破失败
+        function handleFailedBreakthrough() {
+            const currentRealm = gameData.realms[gameData.realmIndex];
+            const baseChance = gameData.baseBreakthroughChances[gameData.realmIndex];
+            
+            // 增加下次突破概率(5-15%随机)
+            gameData.penalty += Math.floor(5 + Math.random() * 10);
+            
+            // 计算修为惩罚(30-50%随机)
+            const lostPercentage = 0.3 + Math.random() * 0.2;
+            const lostCultivation = Math.floor(gameData.cultivation * lostPercentage);
+            gameData.cultivation -= lostCultivation;
+            if (gameData.cultivation < 0) gameData.cultivation = 0;
+            
+            // 失败反馈
+            if (Math.random() < 0.25) {
+                alert(`突破失败！但你在危急时刻顿悟，下次突破成功率提升${gameData.penalty}%。\n损失了${lostCultivation}点修为。`);
+            } else {
+                alert(`突破失败！灵气反噬导致修为大损，下次突破成功率提升${gameData.penalty}%。\n损失了${lostCultivation}点修为。`);
+            }
+            
+            updateDisplay();
+        }
+
+        // 初始化游戏
+        initGame();
+    </script>
 </body>
 </html>
