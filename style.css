@@ -1,0 +1,55 @@
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background-color: #f5f5dc;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.studio-logo {
+    font-size: 24px;
+    color: #8b4513;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #8b4513;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: #a0522d;
+}
+
+#cultivate-btn {
+    background-color: #4CAF50;
+}
+
+#breakthrough-btn {
+    background-color: #f44336;
+}
+
+.hidden {
+    display: none;
+}
+
+.cultivation-info {
+    margin: 20px 0;
+    font-size: 18px;
+}
