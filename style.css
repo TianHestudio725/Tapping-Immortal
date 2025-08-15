@@ -4,52 +4,112 @@ body {
     color: #333;
     text-align: center;
     padding: 20px;
+    background-image: url('assets/images/bg.jpg');
+    background-size: cover;
+    background-attachment: fixed;
 }
 
 .container {
     max-width: 600px;
     margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    color: #8b4513;
+    font-size: 2.5em;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+h2 {
+    color: #5d4037;
+    margin-top: 0;
 }
 
 .studio-logo {
     font-size: 24px;
     color: #8b4513;
-    margin-bottom: 20px;
+    margin: 15px 0;
     font-weight: bold;
+    font-style: italic;
+}
+
+.game-area {
+    margin-top: 20px;
+}
+
+.cultivation-info {
+    background-color: rgba(139, 69, 19, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 18px;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     font-size: 18px;
-    background-color: #8b4513;
-    color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     margin: 10px;
-}
-
-button:hover {
-    background-color: #a0522d;
+    transition: all 0.3s;
+    font-weight: bold;
 }
 
 #cultivate-btn {
     background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 0 #2E7D32;
+}
+
+#cultivate-btn:hover {
+    background-color: #3e8e41;
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #2E7D32;
+}
+
+#cultivate-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
 }
 
 #breakthrough-btn {
     background-color: #f44336;
+    color: white;
+    box-shadow: 0 4px 0 #c62828;
+}
+
+#breakthrough-btn:hover {
+    background-color: #e53935;
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #c62828;
+}
+
+#breakthrough-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
 }
 
 .hidden {
     display: none;
 }
 
-.cultivation-info {
-    margin: 20px 0;
-    font-size: 18px;
+#click-value {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+#cultivation, #next-level {
+    font-weight: bold;
+}
+
+#realm {
+    color: #8b4513;
+    font-weight: bold;
 }
